@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>akvarium</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div id="snow-container"></div>
+
+    <div id="click-overlay" class="overlay">
+        <div class="overlay-text">Click me</div>
+    </div>
+
+    <div class="main-container">
+        <div class="bio-card">
+            <div class="profile-section">
+                <div class="avatar-container">
+                    <img src="" alt="Avatar" class="avatar" id="profile-avatar">
+                    <img src="" alt="Ears" class="avatar-ears" id="profile-ears">
+                </div>
+                <h1 class="username" id="profile-username"></h1>
+                <p class="bio-text" id="profile-bio"></p>
+                <div class="separator"></div>
+                <div class="location" id="profile-location-container">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span id="profile-location"></span>
+                </div>
+            </div>
+
+            <div class="social-links" id="social-links-container">
+                <!-- Links will be generated dynamically by script.js -->
+            </div>
+
+            <div class="audio-player">
+                <img src="https://r2.fakecrime.bio/tracks/covers/b266f5e7-b578-42ee-a159-3e17a75a5250.jpg"
+                    alt="Track Cover" class="track-cover" id="track-cover">
+                <div class="player-controls">
+                    <div class="track-info">
+                        <a href="https://soundcloud.com/goreshit/toromi-hearts-2?in=goreshit/sets/my-love-feels-all-wrong"
+                            target="_blank" id="track-link"><span id="track-title">goreshit - toromi hearts 2</span> <i
+                                class="fa-solid fa-arrow-up-right-from-square"
+                                style="font-size: 0.7em; margin-left: 5px;"></i></a>
+                    </div>
+                    <div class="progress-section">
+                        <span id="current-time">00:00</span>
+                        <input type="range" id="progress-slider" min="0" max="100" value="0" step="0.1"
+                            class="custom-slider" style="flex: 1; margin: 0 10px;">
+                        <span id="total-time">00:00</span>
+                    </div>
+                    <div class="controls-section"
+                        style="display: flex; justify-content: center; align-items: center; margin-top: 15px; flex-wrap: wrap; gap: 20px;">
+                        <div class="playback-controls" style="display: flex; align-items: center; gap: 8px;">
+                            <button id="shuffle-btn" class="control-btn"><i class="fa-solid fa-shuffle"></i></button>
+                            <button id="prev-btn" class="control-btn"><i class="fa-solid fa-backward-step"></i></button>
+                            <button id="play-btn" class="play-btn">
+                                <i class="fa-solid fa-play"></i>
+                            </button>
+                            <button id="next-btn" class="control-btn"><i class="fa-solid fa-forward-step"></i></button>
+                            <button id="loop-btn" class="control-btn"><i class="fa-solid fa-repeat"></i></button>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;" class="volume-container">
+                            <button id="mute-btn" class="control-btn"><i
+                                    class="fa-solid fa-volume-high fa-fw"></i></button>
+                            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="1"
+                                class="custom-slider" style="width: 60px;">
+                        </div>
+                    </div>
+                </div>
+                <audio id="bg-audio"
+                    src="https://r2.fakecrime.bio/tracks/audios/e1696de1-92bd-4889-b19a-1682c6ec20e9.mp3"></audio>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
