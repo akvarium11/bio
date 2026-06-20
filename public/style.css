@@ -104,9 +104,11 @@ body {
 }
 
 .bio-card {
+    position: relative;
     background-color: var(--card-bg);
     border: 1px solid var(--card-border);
     backdrop-filter: blur(40px);
+    border-radius: 20px;
     padding: 40px 30px;
     width: 100%;
     display: flex;
@@ -115,6 +117,7 @@ body {
     box-shadow: 0 0 50px rgba(9, 9, 9, 0.5);
     transition: transform 0.1s ease-out; /* Smooth transition for 3D tilt */
     transform-style: preserve-3d;
+    overflow: hidden;
 }
 
 .profile-section {
@@ -231,14 +234,49 @@ body {
     padding: 15px;
     background-color: rgba(0, 0, 0, 0.2);
     border: 1px solid var(--card-border);
-    border-radius: 8px;
+    border-radius: 0;
+    position: relative;
+    overflow: hidden;
 }
 
-.track-cover {
+.cover-wrapper {
+    position: relative;
     width: 78px;
     height: 78px;
-    border-radius: 8px;
+    border-radius: 50%;
+    overflow: hidden;
     border: 1px solid var(--card-border);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    flex-shrink: 0;
+}
+.cover-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 14px;
+    background: var(--bg-color);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    z-index: 5;
+}
+.track-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+.track-cover.spinning {
+    animation: spinVinyl 12s linear infinite;
+}
+.track-cover.paused {
+    animation-play-state: paused;
+}
+@keyframes spinVinyl {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 .player-controls {
@@ -378,6 +416,7 @@ body {
         flex-direction: column;
         text-align: center;
         gap: 15px;
+        padding-bottom: 35px;
     }
     
     .player-controls {
@@ -389,13 +428,21 @@ body {
         width: 100%;
     }
     
+    .cover-wrapper {
+        margin: 0 auto;
+        width: 68px;
+        height: 68px;
+    }
     .track-cover {
-        display: none;
+        display: block;
     }
 
     .controls-section {
         flex-direction: column;
         gap: 10px !important;
+    }
+    .visualizer-wrapper {
+        height: 18px;
     }
 }
 
@@ -404,8 +451,37 @@ body {
         gap: 15px;
     }
     
-    .track-cover {
+    .cover-wrapper {
         width: 60px;
         height: 60px;
     }
+}
+
+/* Card Shine Effect */
+.card-shine {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle 250px at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(255, 255, 255, 0.08), transparent 75%);
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* Equalizer Visualizer */
+.visualizer-wrapper {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 14px;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.8;
+}
+.visualizer {
+    width: 100%;
+    height: 100%;
+    display: block;
 }

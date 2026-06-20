@@ -87,18 +87,48 @@ document.addEventListener('DOMContentLoaded', () => {
     const bgAudio = document.getElementById('bg-audio');
     const playBtn = document.getElementById('play-btn');
     const playIcon = playBtn.querySelector('i');
+    const trackCover = document.getElementById('track-cover');
 
     let isPlaying = false;
+    let audioContext = null;
+    let analyser = null;
+    let dataArray = null;
+    let sourceNode = null;
+
+    function initAudioContext() {
+        if (audioContext) return;
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 64; // 32 frequency bins
+            
+            sourceNode = audioContext.createMediaElementSource(bgAudio);
+            sourceNode.connect(analyser);
+            analyser.connect(audioContext.destination);
+            
+            const bufferLength = analyser.frequencyBinCount;
+            dataArray = new Uint8Array(bufferLength);
+        } catch (e) {
+            console.error("Web Audio API blocked or not supported:", e);
+        }
+    }
 
     overlay.addEventListener('click', () => {
         overlay.classList.add('hidden');
         mainContainer.classList.add('visible');
+
+        initAudioContext();
+        if (audioContext && audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
 
         // Start audio
         bgAudio.play().then(() => {
             isPlaying = true;
             playIcon.classList.remove('fa-play');
             playIcon.classList.add('fa-pause');
+            trackCover.classList.add('spinning');
+            trackCover.classList.remove('paused');
         }).catch(err => console.error("Audio playback failed:", err));
     });
 
@@ -108,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalTimeEl = document.getElementById('total-time');
 
     // New controls and elements
-    const trackCover = document.getElementById('track-cover');
     const trackTitle = document.getElementById('track-title');
     const trackLink = document.getElementById('track-link');
     const prevBtn = document.getElementById('prev-btn');
@@ -164,8 +193,12 @@ document.addEventListener('DOMContentLoaded', () => {
         trackCover.src = track.cover;
         trackTitle.textContent = track.title;
         trackLink.href = track.url;
+        
+        trackCover.classList.remove('spinning', 'paused');
         if (isPlaying) {
-            bgAudio.play();
+            bgAudio.play().then(() => {
+                trackCover.classList.add('spinning');
+            }).catch(e => console.log(e));
         }
     }
 
@@ -245,7 +278,10 @@ document.addEventListener('DOMContentLoaded', () => {
     bgAudio.addEventListener('ended', () => {
         if (isLoop) {
             bgAudio.currentTime = 0;
-            bgAudio.play();
+            bgAudio.play().then(() => {
+                trackCover.classList.add('spinning');
+                trackCover.classList.remove('paused');
+            }).catch(e => console.log(e));
         } else {
             playNextTrack();
             // Need to explicitly call play if not looping but auto-advancing
@@ -289,11 +325,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     playBtn.addEventListener('click', () => {
+        initAudioContext();
+        if (audioContext && audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+
         if (isPlaying) {
             bgAudio.pause();
             playIcon.className = 'fa-solid fa-play';
+            trackCover.classList.add('paused');
         } else {
-            bgAudio.play();
+            bgAudio.play().then(() => {
+                trackCover.classList.add('spinning');
+                trackCover.classList.remove('paused');
+            }).catch(e => console.log(e));
             playIcon.className = 'fa-solid fa-pause';
         }
         isPlaying = !isPlaying;
@@ -367,13 +412,19 @@ document.addEventListener('DOMContentLoaded', () => {
         createSocialIcon(social.name, social.link, social.icon);
     });
 
-    // 5. 3D Tilt Effect on Bio Card (Desktop Only)
-    const bioCard = document.querySelector('.bio-card');
+    // 5. 3D Tilt Effect on Bio Card & Mouse Shine Tracking
+    const bioCard = document.getElementById('bio-card') || document.querySelector('.bio-card');
     document.addEventListener('mousemove', (e) => {
+        const rect = bioCard.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        bioCard.style.setProperty('--mouse-x', `${x}px`);
+        bioCard.style.setProperty('--mouse-y', `${y}px`);
+
         if (window.innerWidth <= 768) return;
         bioCard.style.transition = 'transform 0.1s ease-out';
-        const xAxis = (window.innerWidth / 2 - e.pageX) / 40;
-        const yAxis = (window.innerHeight / 2 - e.pageY) / 40;
+        const xAxis = (window.innerWidth / 2 - e.clientX) / 40;
+        const yAxis = (window.innerHeight / 2 - e.clientY) / 40;
         bioCard.style.transform = `perspective(1000px) rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
     });
 
@@ -384,5 +435,87 @@ document.addEventListener('DOMContentLoaded', () => {
         bioCard.style.transform = `perspective(1000px) rotateY(0deg) rotateX(0deg)`;
     });
 
-    // Initialize is handled at the top of the script
+    // 6. Квадратный и белый аудиовизуализатор
+    const canvas = document.getElementById('visualizer');
+    const ctx = canvas.getContext('2d');
+    
+    function resizeCanvas() {
+        canvas.width = canvas.parentElement.clientWidth * window.devicePixelRatio;
+        canvas.height = canvas.parentElement.clientHeight * window.devicePixelRatio;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    const barCount = 32;
+    const bars = [];
+    for (let i = 0; i < barCount; i++) {
+        bars.push({
+            currentHeight: 1,
+            targetHeight: 1,
+            speed: 0.12 + Math.random() * 0.08
+        });
+    }
+    
+    function drawVisualizer() {
+        requestAnimationFrame(drawVisualizer);
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const w = canvas.width;
+        const h = canvas.height;
+        const barWidth = (w / barCount) * 0.7;
+        const gap = (w / barCount) * 0.3;
+        
+        let hasRealData = false;
+        if (isPlaying && analyser && dataArray) {
+            analyser.getByteFrequencyData(dataArray);
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+                sum += dataArray[i];
+            }
+            if (sum > 0) {
+                hasRealData = true;
+            }
+        }
+        
+        for (let i = 0; i < barCount; i++) {
+            const bar = bars[i];
+            
+            if (isPlaying) {
+                if (hasRealData) {
+                    const val = dataArray[i] || 0;
+                    let frequencyBoost = 1.0;
+                    if (i > 16) frequencyBoost = 1.3;
+                    if (i > 24) frequencyBoost = 1.6;
+                    bar.targetHeight = Math.max(1, (val / 255) * h * 1.15 * frequencyBoost);
+                } else {
+                    const time = Date.now() * 0.0035;
+                    const wave1 = Math.sin(time + i * 0.35) * 0.45 + 0.55;
+                    const wave2 = Math.cos(time * 0.65 - i * 0.4) * 0.35 + 0.45;
+                    const randomNoise = Math.random() * 0.2;
+                    
+                    let freqMultiplier = 0.85;
+                    if (i < 6) freqMultiplier = 0.45 + i * 0.08; // Bass
+                    else if (i > 25) freqMultiplier = 1.0 - (i - 25) * 0.1; // Highs
+                    
+                    const factor = (wave1 * 0.65 + wave2 * 0.35 + randomNoise * 0.1) * freqMultiplier;
+                    bar.targetHeight = Math.max(1, factor * h * 0.95);
+                }
+            } else {
+                bar.targetHeight = 1;
+            }
+            
+            bar.currentHeight += (bar.targetHeight - bar.currentHeight) * bar.speed;
+            
+            const x = i * (barWidth + gap) + gap / 2;
+            const y = h - bar.currentHeight;
+            
+            ctx.fillStyle = '#ffffff'; // Полностью белый
+            
+            ctx.beginPath();
+            ctx.rect(x, y, barWidth, bar.currentHeight); // Квадратные столбцы
+            ctx.fill();
+        }
+    }
+    drawVisualizer();
 });
