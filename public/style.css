@@ -75,12 +75,38 @@ body {
 
 .overlay-text {
     font-size: 1.125rem;
-    animation: slideUp 0.3s ease-out;
+    transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
-@keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+.overlay-text.hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    position: absolute;
+}
+
+.preloader-container {
+    width: 200px;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.preloader-container.hidden {
+    opacity: 0;
+    transform: translateY(-20px);
+    pointer-events: none;
+    position: absolute;
+}
+
+.progress-bar {
+    width: 0%;
+    height: 100%;
+    background-color: #ffffff;
+    transition: width 0.3s ease;
 }
 
 /* Main Container */

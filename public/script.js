@@ -114,6 +114,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     overlay.addEventListener('click', () => {
+        const clickText = document.getElementById('click-text');
+        if (clickText && clickText.classList.contains('hidden')) {
+            return;
+        }
+
         overlay.classList.add('hidden');
         mainContainer.classList.add('visible');
 
@@ -518,4 +523,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     drawVisualizer();
+
+    // ==========================================
+    // 7. PRELOADER
+    // ==========================================
+    const preloaderContainer = document.getElementById('preloader-container');
+    const progressBar = document.getElementById('progress-bar');
+    const clickText = document.getElementById('click-text');
+    
+    const assetsToLoad = [];
+    if (profileConfig.avatar) assetsToLoad.push(profileConfig.avatar);
+    if (profileConfig.avatarEars) assetsToLoad.push(profileConfig.avatarEars);
+    tracks.forEach(t => {
+        if (t.cover) assetsToLoad.push(t.cover);
+    });
+    // Добавим белый блеск с заднего фона
+    assetsToLoad.push('https://r2.fakecrime.bio/assets/sparkles/white.gif');
+
+    let loadedCount = 0;
+
+    function updateProgress() {
+        loadedCount++;
+        const percent = (loadedCount / assetsToLoad.length) * 100;
+        progressBar.style.width = `${percent}%`;
+
+        if (loadedCount === assetsToLoad.length) {
+            setTimeout(() => {
+                preloaderContainer.classList.add('hidden');
+                setTimeout(() => {
+                    clickText.classList.remove('hidden');
+                }, 500); // Ждем пока исчезнет preloader
+            }, 500); // Небольшая задержка после 100%
+        }
+    }
+
+    if (assetsToLoad.length === 0) {
+        if (preloaderContainer) preloaderContainer.classList.add('hidden');
+        if (clickText) clickText.classList.remove('hidden');
+    } else {
+        assetsToLoad.forEach(src => {
+            const img = new Image();
+            img.onload = updateProgress;
+            img.onerror = updateProgress;
+            img.src = src;
+        });
+    }
 });
