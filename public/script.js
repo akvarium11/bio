@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.getElementById('profile-avatar').src = profileConfig.avatar;
-    
+
     // Set Favicon
     let favicon = document.querySelector("link[rel~='icon']");
     if (!favicon) {
@@ -101,11 +101,11 @@ document.addEventListener('DOMContentLoaded', () => {
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
             analyser = audioContext.createAnalyser();
             analyser.fftSize = 64; // 32 frequency bins
-            
+
             sourceNode = audioContext.createMediaElementSource(bgAudio);
             sourceNode.connect(analyser);
             analyser.connect(audioContext.destination);
-            
+
             const bufferLength = analyser.frequencyBinCount;
             dataArray = new Uint8Array(bufferLength);
         } catch (e) {
@@ -181,6 +181,24 @@ document.addEventListener('DOMContentLoaded', () => {
             src: "/assets/songs/Mario Judah, Sewerslvt - Miss The Rage (Sewerslvt Remix).mp3",
             cover: "https://i1.sndcdn.com/artworks-VrjfqQqDnSsa5abn-zUaPeg-t500x500.jpg",
             url: "https://soundcloud.com/swrslt-rare-music-archive/mario-judah-miss-the-rage"
+        },
+        {
+            title: "Im In Love With My Twin Sister",
+            src: "/assets/songs/remi, a higher love - im in love with my twin sister goreshit.mp3",
+            cover: "https://i1.sndcdn.com/artworks-DzNzu6fsjrfgRUwd-FUnzvw-t500x500.jpg",
+            url: "https://soundcloud.com/princess-boxcutter/im-in-love-with-my-twin-sister-a-higher-love-goreshit"
+        },
+        {
+            title: "im gonna die (Shoebill remix)",
+            src: "/assets/songs/Kitty On Fire Records, Shoebill - im gonna die (Shoebill Remix).mp3",
+            cover: "https://i1.sndcdn.com/artworks-rWi6fHX40C3J7R1A-GhyYgA-t500x500.jpg",
+            url: "https://soundcloud.com/kitty-on-fire-records/im-gonna-die-shoebill-remix"
+        },
+        {
+            title: "fresh meat (remix of diet tea other cola)",
+            src: "/assets/songs/Kitty On Fire Records, remix of diet tea other cola - fresh meat.mp3",
+            cover: "https://i1.sndcdn.com/artworks-rWi6fHX40C3J7R1A-GhyYgA-t500x500.jpg",
+            url: "https://soundcloud.com/kitty-on-fire-records/fresh-meat-remix-of-diet-tea"
         }
     ];
 
@@ -198,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
         trackCover.src = track.cover;
         trackTitle.textContent = track.title;
         trackLink.href = track.url;
-        
+
         trackCover.classList.remove('spinning', 'paused');
         if (isPlaying) {
             bgAudio.play().then(() => {
@@ -443,14 +461,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // 6. Квадратный и белый аудиовизуализатор
     const canvas = document.getElementById('visualizer');
     const ctx = canvas.getContext('2d');
-    
+
     function resizeCanvas() {
         canvas.width = canvas.parentElement.clientWidth * window.devicePixelRatio;
         canvas.height = canvas.parentElement.clientHeight * window.devicePixelRatio;
     }
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
-    
+
     const barCount = 32;
     const bars = [];
     for (let i = 0; i < barCount; i++) {
@@ -460,17 +478,17 @@ document.addEventListener('DOMContentLoaded', () => {
             speed: 0.12 + Math.random() * 0.08
         });
     }
-    
+
     function drawVisualizer() {
         requestAnimationFrame(drawVisualizer);
-        
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
+
         const w = canvas.width;
         const h = canvas.height;
         const barWidth = (w / barCount) * 0.7;
         const gap = (w / barCount) * 0.3;
-        
+
         let hasRealData = false;
         if (isPlaying && analyser && dataArray) {
             analyser.getByteFrequencyData(dataArray);
@@ -482,10 +500,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 hasRealData = true;
             }
         }
-        
+
         for (let i = 0; i < barCount; i++) {
             const bar = bars[i];
-            
+
             if (isPlaying) {
                 if (hasRealData) {
                     const val = dataArray[i] || 0;
@@ -498,25 +516,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     const wave1 = Math.sin(time + i * 0.35) * 0.45 + 0.55;
                     const wave2 = Math.cos(time * 0.65 - i * 0.4) * 0.35 + 0.45;
                     const randomNoise = Math.random() * 0.2;
-                    
+
                     let freqMultiplier = 0.85;
                     if (i < 6) freqMultiplier = 0.45 + i * 0.08; // Bass
                     else if (i > 25) freqMultiplier = 1.0 - (i - 25) * 0.1; // Highs
-                    
+
                     const factor = (wave1 * 0.65 + wave2 * 0.35 + randomNoise * 0.1) * freqMultiplier;
                     bar.targetHeight = Math.max(1, factor * h * 0.95);
                 }
             } else {
                 bar.targetHeight = 1;
             }
-            
+
             bar.currentHeight += (bar.targetHeight - bar.currentHeight) * bar.speed;
-            
+
             const x = i * (barWidth + gap) + gap / 2;
             const y = h - bar.currentHeight;
-            
+
             ctx.fillStyle = '#ffffff'; // Полностью белый
-            
+
             ctx.beginPath();
             ctx.rect(x, y, barWidth, bar.currentHeight); // Квадратные столбцы
             ctx.fill();
@@ -530,7 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const preloaderContainer = document.getElementById('preloader-container');
     const progressBar = document.getElementById('progress-bar');
     const clickText = document.getElementById('click-text');
-    
+
     const assetsToLoad = [];
     if (profileConfig.avatar) assetsToLoad.push(profileConfig.avatar);
     if (profileConfig.avatarEars) assetsToLoad.push(profileConfig.avatarEars);
