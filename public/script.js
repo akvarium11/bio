@@ -422,7 +422,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "GitHub", link: "https://github.com/akvarium11", icon: "fa-brands fa-github" },
         { name: "Discord", link: "boqc", icon: "fa-brands fa-discord" },
         { name: "Steam", link: "https://steamcommunity.com/id/akvarium11/", icon: "fa-brands fa-steam" },
-        { name: "SoundCloud", link: "https://soundcloud.com/akvarium11/", icon: "fa-brands fa-soundcloud" }
+        { name: "SoundCloud", link: "https://soundcloud.com/akvarium11/", icon: "fa-brands fa-soundcloud" },
+        { name: "NameMC", link: "https://namemc.com/profile/akkvarium", icon: "fa-brands fa-microsoft" }
         // Примеры других соцсетей (раскомментируйте или измените):
         // { name: "Telegram", link: "https://t.me/fakecrime", icon: "fa-brands fa-telegram" },
         // { name: "SoundCloud", link: "https://soundcloud.com/fakecrime", icon: "fa-brands fa-soundcloud" },
