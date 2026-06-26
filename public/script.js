@@ -87,7 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const bgAudio = document.getElementById('bg-audio');
     const playBtn = document.getElementById('play-btn');
     const playIcon = playBtn.querySelector('i');
-    const trackCover = document.getElementById('track-cover');
+    let trackCover = document.getElementById('track-cover');
+    let currentCoverWrapper = document.getElementById('current-cover-wrapper');
+    const coversContainer = document.querySelector('.covers-container');
 
     let isPlaying = false;
     let audioContext = null;
@@ -167,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             title: "Toromi hearts 2", // То, что будет написано в плеере
             src: "/assets/songs/goreshit - toromi hearts 2.mp3", // Путь к локальному файлу
-            cover: "https://r2.fakecrime.bio/tracks/covers/b266f5e7-b578-42ee-a159-3e17a75a5250.jpg", // Ссылка на обложку (или локальный путь /assets/cover1.jpg)
+            cover: "assets/cover.jpg", // Ссылка на обложку (или локальный путь /assets/cover1.jpg)
             url: "https://soundcloud.com/goreshit/toromi-hearts-2" // Ссылка, которая откроется при клике на название
         },
         {
@@ -209,13 +211,49 @@ document.addEventListener('DOMContentLoaded', () => {
     // Инициализация первой песни
     loadTrack(0);
 
-    function loadTrack(index) {
+    function loadTrack(index, animateDirection = 0) {
         if (tracks.length === 0) return;
         const track = tracks[index];
         bgAudio.src = track.src;
-        trackCover.src = track.cover;
         trackTitle.textContent = track.title;
         trackLink.href = track.url;
+
+        if (animateDirection !== 0 && coversContainer) {
+            const newWrapper = document.createElement('div');
+            newWrapper.className = 'cover-wrapper';
+            newWrapper.style.transform = `translateX(${animateDirection * 100}px)`;
+            newWrapper.style.opacity = '0';
+
+            const newImg = document.createElement('img');
+            newImg.src = track.cover;
+            newImg.alt = 'Track Cover';
+            newImg.className = 'track-cover';
+            newImg.id = 'track-cover';
+            
+            newWrapper.appendChild(newImg);
+            coversContainer.appendChild(newWrapper);
+
+            if (currentCoverWrapper) {
+                const oldWrapper = currentCoverWrapper;
+                const oldImg = oldWrapper.querySelector('.track-cover');
+                if (oldImg) oldImg.removeAttribute('id');
+                
+                oldWrapper.style.transform = `translateX(${-animateDirection * 100}px)`;
+                oldWrapper.style.opacity = '0';
+                setTimeout(() => {
+                    if (oldWrapper.parentNode) oldWrapper.parentNode.removeChild(oldWrapper);
+                }, 500);
+            }
+
+            void newWrapper.offsetWidth; // trigger reflow
+            newWrapper.style.transform = 'translateX(0)';
+            newWrapper.style.opacity = '1';
+
+            currentCoverWrapper = newWrapper;
+            trackCover = newImg;
+        } else {
+            trackCover.src = track.cover;
+        }
 
         trackCover.classList.remove('spinning', 'paused');
         if (isPlaying) {
@@ -235,12 +273,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
         }
-        loadTrack(currentTrackIndex);
+        loadTrack(currentTrackIndex, 1);
     }
 
     function playPrevTrack() {
         currentTrackIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
-        loadTrack(currentTrackIndex);
+        loadTrack(currentTrackIndex, -1);
     }
 
     nextBtn.addEventListener('click', playNextTrack);
@@ -557,7 +595,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (t.cover) assetsToLoad.push(t.cover);
     });
     // Добавим белый блеск с заднего фона
-    assetsToLoad.push('https://r2.fakecrime.bio/assets/sparkles/white.gif');
+    assetsToLoad.push('assets/white.gif');
 
     let loadedCount = 0;
 

@@ -29,7 +29,7 @@ app.get('/api/songs', (req, res) => {
                 return {
                     title: title,
                     src: `/assets/songs/${file}`,
-                    cover: "https://r2.fakecrime.bio/tracks/covers/b266f5e7-b578-42ee-a159-3e17a75a5250.jpg", // Default cover
+                    cover: "/assets/cover.jpg", // Default cover
                     url: "#"
                 };
             });

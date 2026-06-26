@@ -180,7 +180,7 @@ body {
 .username {
     font-size: 1.5rem;
     font-weight: 600;
-    background-image: url('https://r2.fakecrime.bio/assets/sparkles/white.gif');
+    background-image: url('assets/white.gif');
     background-size: cover;
     color: white; /* fallback */
 }
@@ -265,15 +265,24 @@ body {
     overflow: hidden;
 }
 
-.cover-wrapper {
+.covers-container {
     position: relative;
     width: 78px;
     height: 78px;
+    flex-shrink: 0;
+}
+
+.cover-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     overflow: hidden;
     border: 1px solid var(--card-border);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-    flex-shrink: 0;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
 }
 .cover-wrapper::after {
     content: "";
@@ -454,7 +463,7 @@ body {
         width: 100%;
     }
     
-    .cover-wrapper {
+    .covers-container {
         margin: 0 auto;
         width: 68px;
         height: 68px;
@@ -477,7 +486,7 @@ body {
         gap: 15px;
     }
     
-    .cover-wrapper {
+    .covers-container {
         width: 60px;
         height: 60px;
     }
