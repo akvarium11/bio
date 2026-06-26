@@ -161,18 +161,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // Убедитесь, что файлы лежат в папке u:\web\bio\assets\songs\
     const tracks = [
         {
-            title: "Miss The Rage (Sewerslvt Remix)",
-            src: "/assets/songs/Mario Judah, Sewerslvt - Miss The Rage (Sewerslvt Remix).mp3",
-            cover: "https://i1.sndcdn.com/artworks-VrjfqQqDnSsa5abn-zUaPeg-t500x500.jpg",
-            url: "https://soundcloud.com/swrslt-rare-music-archive/mario-judah-miss-the-rage"
-        },
-        {
             title: "Toromi hearts 2", // То, что будет написано в плеере
             src: "/assets/songs/goreshit - toromi hearts 2.mp3", // Путь к локальному файлу
             cover: "assets/cover.jpg", // Ссылка на обложку (или локальный путь /assets/cover1.jpg)
             url: "https://soundcloud.com/goreshit/toromi-hearts-2" // Ссылка, которая откроется при клике на название
         },
         {
+            title: "Im In Love With My Twin Sister",
+            src: "/assets/songs/remi, a higher love - im in love with my twin sister goreshit.mp3",
+            cover: "https://i1.sndcdn.com/artworks-DzNzu6fsjrfgRUwd-FUnzvw-t500x500.jpg",
+            url: "https://soundcloud.com/princess-boxcutter/im-in-love-with-my-twin-sister-a-higher-love-goreshit"
+        },
+        {
+            title: "Miss The Rage (Sewerslvt Remix)",
+            src: "/assets/songs/Mario Judah, Sewerslvt - Miss The Rage (Sewerslvt Remix).mp3",
+            cover: "https://i1.sndcdn.com/artworks-VrjfqQqDnSsa5abn-zUaPeg-t500x500.jpg",
+            url: "https://soundcloud.com/swrslt-rare-music-archive/mario-judah-miss-the-rage"
+        },
+                {
             title: "Hi High (Sewerslvt Remix)",
             src: "/assets/songs/LOONA, Sewerslvt - Hi High (Sewerslvt Remix).mp3",
             cover: "https://i1.sndcdn.com/artworks-EfIFAzBOnKHZ7KZU-SPdcKg-t500x500.jpg",
@@ -183,12 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
             src: "/assets/songs/The fastest Love Song.mp3",
             cover: "https://i1.sndcdn.com/artworks-XM2EGiGof0rQyMRe-1mIc0w-t500x500.jpg",
             url: "https://soundcloud.com/sunset-381187614/videoplayback"
-        },
-        {
-            title: "Im In Love With My Twin Sister",
-            src: "/assets/songs/remi, a higher love - im in love with my twin sister goreshit.mp3",
-            cover: "https://i1.sndcdn.com/artworks-DzNzu6fsjrfgRUwd-FUnzvw-t500x500.jpg",
-            url: "https://soundcloud.com/princess-boxcutter/im-in-love-with-my-twin-sister-a-higher-love-goreshit"
         },
         {
             title: "im gonna die (Shoebill remix)",
