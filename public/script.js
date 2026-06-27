@@ -161,16 +161,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Убедитесь, что файлы лежат в папке u:\web\bio\assets\songs\
     const tracks = [
         {
-            title: "Toromi hearts 2", // То, что будет написано в плеере
-            src: "/assets/songs/goreshit - toromi hearts 2.mp3", // Путь к локальному файлу
-            cover: "assets/cover.jpg", // Ссылка на обложку (или локальный путь /assets/cover1.jpg)
-            url: "https://soundcloud.com/goreshit/toromi-hearts-2" // Ссылка, которая откроется при клике на название
+            title: "Illusionary Night [Fuwa Fuwa Spring Storm]", // То, что будет написано в плеере
+            src: "assets/songs/ELECTR, Fuwa Fuwa Spring Storm - Illusionary Night.mp3", // Путь к локальному файлу
+            cover: "https://i1.sndcdn.com/artworks-1ZyMjlvONjI9vzw0-0MBvuw-t500x500.jpg", // Ссылка на обложку (или локальный путь /assets/cover1.jpg)
+            url: "https://soundcloud.com/electr-nics/illusionary-night" // Ссылка, которая откроется при клике на название
         },
         {
-            title: "Im In Love With My Twin Sister",
-            src: "/assets/songs/remi, a higher love - im in love with my twin sister goreshit.mp3",
-            cover: "https://i1.sndcdn.com/artworks-DzNzu6fsjrfgRUwd-FUnzvw-t500x500.jpg",
-            url: "https://soundcloud.com/princess-boxcutter/im-in-love-with-my-twin-sister-a-higher-love-goreshit"
+            title: "Toromi hearts 2", 
+            src: "/assets/songs/goreshit - toromi hearts 2.mp3",  
+            cover: "assets/cover.jpg", 
+            url: "https://soundcloud.com/goreshit/toromi-hearts-2"
         },
         {
             title: "Miss The Rage (Sewerslvt Remix)",
