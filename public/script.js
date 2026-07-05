@@ -84,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Overlay & Audio
     const overlay = document.getElementById('click-overlay');
     const mainContainer = document.querySelector('.main-container');
+    const islandContainer = document.querySelector('.dynamic-island-container');
     const bgAudio = document.getElementById('bg-audio');
     const playBtn = document.getElementById('play-btn');
     const playIcon = playBtn.querySelector('i');
@@ -115,6 +116,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Synchronize play state animations between compact and expanded view covers
+    function setCoverAnimationState(playing) {
+        const miniCover = document.getElementById('mini-cover');
+        const miniWaveform = document.getElementById('mini-waveform');
+        
+        if (playing) {
+            if (trackCover) {
+                trackCover.classList.add('spinning');
+                trackCover.classList.remove('paused');
+            }
+            if (miniCover) {
+                miniCover.classList.add('spinning');
+                miniCover.classList.remove('paused');
+            }
+            if (miniWaveform) {
+                miniWaveform.classList.add('playing');
+            }
+        } else {
+            if (trackCover) {
+                trackCover.classList.add('paused');
+            }
+            if (miniCover) {
+                miniCover.classList.add('paused');
+            }
+            if (miniWaveform) {
+                miniWaveform.classList.remove('playing');
+            }
+        }
+    }
+
     overlay.addEventListener('click', () => {
         const clickText = document.getElementById('click-text');
         if (clickText && clickText.classList.contains('hidden')) {
@@ -123,6 +154,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         overlay.classList.add('hidden');
         mainContainer.classList.add('visible');
+        if (islandContainer) {
+            islandContainer.classList.add('visible');
+        }
 
         initAudioContext();
         if (audioContext && audioContext.state === 'suspended') {
@@ -134,8 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
             isPlaying = true;
             playIcon.classList.remove('fa-play');
             playIcon.classList.add('fa-pause');
-            trackCover.classList.add('spinning');
-            trackCover.classList.remove('paused');
+            setCoverAnimationState(true);
         }).catch(err => console.error("Audio playback failed:", err));
     });
 
@@ -218,6 +251,12 @@ document.addEventListener('DOMContentLoaded', () => {
         trackTitle.textContent = track.title;
         trackLink.href = track.url;
 
+        // Also update compact elements
+        const miniCover = document.getElementById('mini-cover');
+        const miniTrackTitle = document.getElementById('mini-track-title');
+        if (miniCover) miniCover.src = track.cover;
+        if (miniTrackTitle) miniTrackTitle.textContent = track.title;
+
         if (animateDirection !== 0 && coversContainer) {
             const newWrapper = document.createElement('div');
             newWrapper.className = 'cover-wrapper';
@@ -255,11 +294,12 @@ document.addEventListener('DOMContentLoaded', () => {
             trackCover.src = track.cover;
         }
 
-        trackCover.classList.remove('spinning', 'paused');
         if (isPlaying) {
             bgAudio.play().then(() => {
-                trackCover.classList.add('spinning');
+                setCoverAnimationState(true);
             }).catch(e => console.log(e));
+        } else {
+            setCoverAnimationState(false);
         }
     }
 
@@ -340,8 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isLoop) {
             bgAudio.currentTime = 0;
             bgAudio.play().then(() => {
-                trackCover.classList.add('spinning');
-                trackCover.classList.remove('paused');
+                setCoverAnimationState(true);
             }).catch(e => console.log(e));
         } else {
             playNextTrack();
@@ -394,11 +433,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isPlaying) {
             bgAudio.pause();
             playIcon.className = 'fa-solid fa-play';
-            trackCover.classList.add('paused');
+            setCoverAnimationState(false);
         } else {
             bgAudio.play().then(() => {
-                trackCover.classList.add('spinning');
-                trackCover.classList.remove('paused');
+                setCoverAnimationState(true);
             }).catch(e => console.log(e));
             playIcon.className = 'fa-solid fa-pause';
         }
@@ -623,6 +661,58 @@ document.addEventListener('DOMContentLoaded', () => {
             img.onload = updateProgress;
             img.onerror = updateProgress;
             img.src = src;
+        });
+    }
+
+    // ==========================================
+    // 8. DYNAMIC ISLAND INTERACTIVITY
+    // ==========================================
+    const dynamicIsland = document.getElementById('dynamic-island');
+    const islandExpanded = document.querySelector('.island-expanded');
+
+    if (dynamicIsland) {
+        // Prevent click events inside the expanded player from collapsing it
+        if (islandExpanded) {
+            islandExpanded.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+
+        // Hover events for Desktop
+        dynamicIsland.addEventListener('mouseenter', () => {
+            if (window.innerWidth > 768) {
+                dynamicIsland.classList.add('expanded');
+            }
+        });
+
+        dynamicIsland.addEventListener('mouseleave', () => {
+            if (window.innerWidth > 768) {
+                if (!dynamicIsland.classList.contains('locked')) {
+                    dynamicIsland.classList.remove('expanded');
+                }
+            }
+        });
+
+        // Click / Tap events for Mobile & Desktop locking
+        dynamicIsland.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!dynamicIsland.classList.contains('expanded')) {
+                dynamicIsland.classList.add('expanded');
+                dynamicIsland.classList.add('locked');
+            } else {
+                // If it's already expanded and the user clicked outside controls (the pill background)
+                // we can toggle it back to collapsed
+                dynamicIsland.classList.remove('expanded');
+                dynamicIsland.classList.remove('locked');
+            }
+        });
+
+        // Collapse when clicking anywhere else on the screen
+        document.addEventListener('click', (e) => {
+            if (dynamicIsland.classList.contains('expanded')) {
+                dynamicIsland.classList.remove('expanded');
+                dynamicIsland.classList.remove('locked');
+            }
         });
     }
 });

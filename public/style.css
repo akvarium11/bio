@@ -253,6 +253,207 @@ body {
     transform: translateY(0) scale(1);
 }
 
+/* Dynamic Island Container */
+.dynamic-island-container {
+    position: fixed;
+    top: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dynamic-island-container.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Dynamic Island Base Styles */
+.dynamic-island {
+    pointer-events: auto;
+    background: #000000;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    font-family: var(--font-main);
+    
+    /* Default Compact State dimensions */
+    width: 220px;
+    height: 40px;
+    border-radius: 20px;
+    
+    /* Morphs smoothly between compact and expanded states */
+    transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.15),
+                height 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.15),
+                border-radius 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.15),
+                border-color 0.3s ease,
+                box-shadow 0.5s ease;
+}
+
+.dynamic-island:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+}
+
+/* Expanded State dimensions */
+.dynamic-island.expanded {
+    width: 420px;
+    height: 230px;
+    border-radius: 30px;
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* 1. COMPACT STATE CONTENT */
+.island-compact {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 40px; /* matches compact height */
+    padding: 0 14px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+    z-index: 2;
+    cursor: pointer;
+}
+
+.dynamic-island.expanded .island-compact {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.compact-left {
+    display: flex;
+    align-items: center;
+}
+
+.mini-cover {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    transition: transform 0.5s ease;
+}
+
+.mini-cover.spinning {
+    animation: spinVinyl 12s linear infinite;
+}
+
+.mini-cover.paused {
+    animation-play-state: paused;
+}
+
+.compact-center {
+    flex: 1;
+    margin: 0 12px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+}
+
+.mini-track-title {
+    font-size: 0.65rem;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 130px;
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.compact-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+}
+
+/* Mini Waveform Equalizer animation */
+.mini-waveform {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 12px;
+    width: 16px;
+}
+
+.wave-bar {
+    width: 2px;
+    height: 100%;
+    background-color: var(--accent);
+    border-radius: 1px;
+    transform: scaleY(0.2);
+    transform-origin: bottom;
+    transition: transform 0.2s ease;
+}
+
+.mini-waveform.playing .wave-bar:nth-child(1) {
+    animation: bounceWave 0.8s ease-in-out infinite alternate;
+}
+.mini-waveform.playing .wave-bar:nth-child(2) {
+    animation: bounceWave 0.5s ease-in-out infinite alternate 0.15s;
+}
+.mini-waveform.playing .wave-bar:nth-child(3) {
+    animation: bounceWave 0.7s ease-in-out infinite alternate 0.3s;
+}
+.mini-waveform.playing .wave-bar:nth-child(4) {
+    animation: bounceWave 0.6s ease-in-out infinite alternate 0.05s;
+}
+
+@keyframes bounceWave {
+    0% {
+        transform: scaleY(0.25);
+    }
+    100% {
+        transform: scaleY(1);
+    }
+}
+
+/* 2. EXPANDED STATE CONTENT */
+.island-expanded {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 16px 20px;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dynamic-island.expanded .island-expanded {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 0.4s ease 0.15s;
+}
+
+/* Base .audio-player styling */
 .audio-player {
     display: flex;
     align-items: center;
@@ -263,6 +464,54 @@ body {
     border-radius: 0;
     position: relative;
     overflow: hidden;
+}
+
+/* Override .audio-player styling inside the dynamic island */
+.island-expanded .audio-player {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-radius: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.island-expanded .covers-container {
+    width: 80px;
+    height: 80px;
+}
+
+.island-expanded .player-controls {
+    gap: 8px;
+}
+
+.island-expanded .track-info a {
+    font-size: 0.8rem;
+    line-height: 1.2;
+}
+
+.island-expanded .progress-section {
+    gap: 8px;
+    font-size: 0.7rem;
+}
+
+.island-expanded .controls-section {
+    margin-top: 8px !important;
+    gap: 12px !important;
+}
+
+/* Make sure the visualizer is positioned at the very bottom of the expanded island */
+.island-expanded .visualizer-wrapper {
+    height: 10px;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 0;
 }
 
 .covers-container {
@@ -447,35 +696,40 @@ body {
         font-size: 1.25rem;
     }
     
-    .audio-player {
-        flex-direction: column;
-        text-align: center;
-        gap: 15px;
-        padding-bottom: 35px;
+    /* Dynamic Island Mobile (Tablet size <= 768px) */
+    .dynamic-island.expanded {
+        width: 380px;
+        height: 280px;
     }
     
-    .player-controls {
+    .island-expanded .audio-player {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    
+    .island-expanded .covers-container {
+        margin: 0 auto;
+        width: 64px;
+        height: 64px;
+    }
+    
+    .island-expanded .player-controls {
         width: 100%;
         align-items: center;
     }
     
-    .progress-section {
+    .island-expanded .progress-section {
         width: 100%;
     }
     
-    .covers-container {
-        margin: 0 auto;
-        width: 68px;
-        height: 68px;
+    .island-expanded .controls-section {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px !important;
     }
-    .track-cover {
-        display: block;
-    }
-
-    .controls-section {
-        flex-direction: column;
-        gap: 10px !important;
-    }
+    
     .visualizer-wrapper {
         height: 18px;
     }
@@ -486,9 +740,37 @@ body {
         gap: 15px;
     }
     
-    .covers-container {
-        width: 60px;
-        height: 60px;
+    /* Dynamic Island Mobile (Phone size <= 480px) */
+    .dynamic-island {
+        width: 180px;
+    }
+    
+    .dynamic-island.expanded {
+        width: calc(100vw - 24px);
+        height: 290px;
+        border-radius: 24px;
+    }
+    
+    .island-expanded {
+        padding: 16px 12px;
+    }
+    
+    .island-expanded .audio-player {
+        gap: 8px;
+    }
+    
+    .island-expanded .covers-container {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .island-expanded .volume-container {
+        display: none; /* Hide volume slider on mobile, standard practice */
+    }
+    
+    .island-expanded .controls-section {
+        margin-top: 4px !important;
+        gap: 10px !important;
     }
 }
 
