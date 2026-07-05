@@ -96,26 +96,50 @@
     <audio id="bg-audio" src="assets/audio.mp3"></audio>
 
     <div class="main-container">
-        <div class="bio-card" id="bio-card">
-            <div class="card-shine" id="card-shine"></div>
-            <div class="profile-section">
-                <div class="avatar-container">
-                    <img src="" alt="Avatar" class="avatar" id="profile-avatar">
-                    <img src="" alt="Ears" class="avatar-ears" id="profile-ears">
+        <!-- Left Arrow Navigation -->
+        <button class="nav-arrow nav-left hidden" id="nav-left" aria-label="Previous page">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <div class="cards-slider" id="cards-slider">
+            <!-- TAB 1: BIO CARD -->
+            <div class="bio-card tab-card active" id="bio-card">
+                <div class="card-shine" id="card-shine-bio"></div>
+                <div class="profile-section">
+                    <div class="avatar-container">
+                        <img src="" alt="Avatar" class="avatar" id="profile-avatar">
+                        <img src="" alt="Ears" class="avatar-ears" id="profile-ears">
+                    </div>
+                    <h1 class="username" id="profile-username"></h1>
+                    <p class="bio-text" id="profile-bio"></p>
+                    <div class="separator"></div>
+                    <div class="location" id="profile-location-container">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span id="profile-location"></span>
+                    </div>
                 </div>
-                <h1 class="username" id="profile-username"></h1>
-                <p class="bio-text" id="profile-bio"></p>
-                <div class="separator"></div>
-                <div class="location" id="profile-location-container">
-                    <i class="fa-solid fa-location-dot"></i>
-                    <span id="profile-location"></span>
+
+                <div class="social-links" id="social-links-container">
+                    <!-- Links will be generated dynamically by script.js -->
                 </div>
             </div>
 
-            <div class="social-links" id="social-links-container">
-                <!-- Links will be generated dynamically by script.js -->
+            <!-- TAB 2: PROJECTS CARD -->
+            <div class="bio-card tab-card slide-next" id="projects-card">
+                <div class="card-shine" id="card-shine-projects"></div>
+                <div class="projects-section">
+                    <h2 class="section-title">Projects</h2>
+                    <div class="projects-list" id="projects-list">
+                        <!-- Projects will be generated dynamically by script.js -->
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!-- Right Arrow Navigation -->
+        <button class="nav-arrow nav-right" id="nav-right" aria-label="Next page">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
     </div>
 
     <script src="script.js"></script>

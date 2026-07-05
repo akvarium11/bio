@@ -10,6 +10,30 @@ document.addEventListener('DOMContentLoaded', () => {
         avatarEars: "/assets/decorations/cat-ears.gif" // Путь к украшению (закиньте файл в assets/decorations/). Оставьте "", если не нужно
     };
 
+    // ==========================================
+    // 1.1 НАСТРОЙКИ ПРОЕКТОВ (ДЛЯ ВТОРОЙ ВКЛАДКИ)
+    // ==========================================
+    const projectsConfig = [
+        {
+            title: "AkvariumMacros",
+            description: "Macro pack with cool looking GUI for Minecraft written in C++.",
+            image: "https://camo.githubusercontent.com/1b8ca0d9563e4a1fc9fdf2622e49a62fcd5b818c3d841a77f21b282729eeac5e/68747470733a2f2f66696c65732e636174626f782e6d6f652f7a73333877612e6a7067", // Ссылка на обложку или картинку проекта
+            link: "https://github.com/akvarium11/AkvariumMacros" // Ссылка на проект (GitHub, сайт и т.д.)
+        },
+        {
+            title: "Bio",
+            description: "Minimalist aesthetic personal landing page with dynamic iOS-style audio player.",
+            image: "assets/projects/bio_screenshot.jpg",
+            link: "https://github.com/akvarium11/bio"
+        },
+        {
+            title: "Account-manager",
+            description: "Simple roblox account manager website written in Node.js & suitable for self-hosting.",
+            image: "assets/projects/account_manager.jpg",
+            link: "https://github.com/akvarium11/account-manager"
+        }
+    ];
+
     // Применение настроек профиля
     document.getElementById('profile-username').innerHTML = profileConfig.username;
     document.getElementById('profile-bio').innerHTML = profileConfig.bio;
@@ -36,6 +60,42 @@ document.addEventListener('DOMContentLoaded', () => {
         earsEl.src = profileConfig.avatarEars;
     } else {
         earsEl.style.display = 'none';
+    }
+
+    // Рендеринг проектов во вторую вкладку
+    const projectsListContainer = document.getElementById('projects-list');
+    if (projectsListContainer && typeof projectsConfig !== 'undefined') {
+        projectsConfig.forEach(project => {
+            const a = document.createElement('a');
+            a.className = 'project-item';
+            a.href = project.link || '#';
+            if (project.link && project.link !== '#') {
+                a.target = '_blank';
+            }
+
+            const img = document.createElement('img');
+            img.className = 'project-image';
+            img.src = project.image || 'assets/cover.jpg';
+            img.alt = project.title;
+
+            const content = document.createElement('div');
+            content.className = 'project-content';
+
+            const title = document.createElement('div');
+            title.className = 'project-title';
+            title.innerHTML = `${project.title} <i class="fa-solid fa-arrow-up-right-from-square"></i>`;
+
+            const desc = document.createElement('p');
+            desc.className = 'project-description';
+            desc.textContent = project.description;
+
+            content.appendChild(title);
+            content.appendChild(desc);
+            a.appendChild(img);
+            a.appendChild(content);
+
+            projectsListContainer.appendChild(a);
+        });
     }
 
     // ==========================================
@@ -193,6 +253,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Впишите сюда информацию о ваших песнях. 
     // Убедитесь, что файлы лежат в папке u:\web\bio\assets\songs\
     const tracks = [
+        {
+            title: "Spreading excitement all over the world!", 
+            src: "/assets/songs/psiangel - Spreading excitement all over the world!.mp3",  
+            cover: "https://i1.sndcdn.com/artworks-q93aKZfQTktFzHAZ-IMRcBw-t500x500.jpg", 
+            url: "https://soundcloud.com/psiangel/god-knows"
+        },
         {
             title: "Toromi hearts 2", 
             src: "/assets/songs/goreshit - toromi hearts 2.mp3",  
@@ -512,27 +578,41 @@ document.addEventListener('DOMContentLoaded', () => {
         createSocialIcon(social.name, social.link, social.icon);
     });
 
-    // 5. 3D Tilt Effect on Bio Card & Mouse Shine Tracking
-    const bioCard = document.getElementById('bio-card') || document.querySelector('.bio-card');
+    // 5. 3D Tilt Effect on Active Card & Mouse Shine Tracking
     document.addEventListener('mousemove', (e) => {
-        const rect = bioCard.getBoundingClientRect();
+        const activeCard = document.querySelector('.tab-card.active');
+        if (!activeCard) return;
+
+        const rect = activeCard.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        bioCard.style.setProperty('--mouse-x', `${x}px`);
-        bioCard.style.setProperty('--mouse-y', `${y}px`);
+        activeCard.style.setProperty('--mouse-x', `${x}px`);
+        activeCard.style.setProperty('--mouse-y', `${y}px`);
 
         if (window.innerWidth <= 768) return;
-        bioCard.style.transition = 'transform 0.1s ease-out';
+        
+        // Reset transform on non-active cards to prevent issues
+        document.querySelectorAll('.tab-card:not(.active)').forEach(c => {
+            c.style.transform = '';
+        });
+
+        activeCard.style.transition = 'transform 0.1s ease-out';
         const xAxis = (window.innerWidth / 2 - e.clientX) / 40;
         const yAxis = (window.innerHeight / 2 - e.clientY) / 40;
-        bioCard.style.transform = `perspective(1000px) rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+        activeCard.style.transform = `perspective(1000px) rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
     });
 
     // Reset when mouse leaves window
     document.addEventListener('mouseleave', () => {
         if (window.innerWidth <= 768) return;
-        bioCard.style.transition = 'transform 1.2s ease-out';
-        bioCard.style.transform = `perspective(1000px) rotateY(0deg) rotateX(0deg)`;
+        document.querySelectorAll('.tab-card').forEach(card => {
+            card.style.transition = 'transform 1.2s ease-out';
+            if (card.classList.contains('active')) {
+                card.style.transform = `perspective(1000px) rotateY(0deg) rotateX(0deg)`;
+            } else {
+                card.style.transform = '';
+            }
+        });
     });
 
     // 6. Квадратный и белый аудиовизуализатор
@@ -632,6 +712,14 @@ document.addEventListener('DOMContentLoaded', () => {
     tracks.forEach(t => {
         if (t.cover) assetsToLoad.push(t.cover);
     });
+    // Preload project images
+    if (typeof projectsConfig !== 'undefined') {
+        projectsConfig.forEach(p => {
+            if (p.image && p.image !== '#' && !p.image.startsWith('http')) {
+                assetsToLoad.push(p.image);
+            }
+        });
+    }
     // Добавим белый блеск с заднего фона
     assetsToLoad.push('assets/white.gif');
 
@@ -715,4 +803,111 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // ==========================================
+    // 9. TAB SWITCHING (BIO & PROJECTS CARDS)
+    // ==========================================
+    let currentTab = 0;
+    const tabCards = document.querySelectorAll('.tab-card');
+    const navLeft = document.getElementById('nav-left');
+    const navRight = document.getElementById('nav-right');
+
+    function updateTabs() {
+        tabCards.forEach((card, idx) => {
+            card.classList.remove('active', 'slide-prev', 'slide-next');
+            if (idx === currentTab) {
+                card.classList.add('active');
+            } else if (idx < currentTab) {
+                card.classList.add('slide-prev');
+            } else {
+                card.classList.add('slide-next');
+            }
+            // Clear active transforms on tab switch
+            card.style.transform = '';
+        });
+
+        // Update arrows visibility based on the current tab
+        if (currentTab === 0) {
+            if (navLeft) navLeft.classList.add('hidden');
+            if (navRight) navRight.classList.remove('hidden');
+        } else if (currentTab === tabCards.length - 1) {
+            if (navLeft) navLeft.classList.remove('hidden');
+            if (navRight) navRight.classList.add('hidden');
+        } else {
+            if (navLeft) navLeft.classList.remove('hidden');
+            if (navRight) navRight.classList.remove('hidden');
+        }
+    }
+
+    // Click events for navigation arrows
+    if (navLeft) {
+        navLeft.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (currentTab > 0) {
+                currentTab--;
+                updateTabs();
+            }
+        });
+    }
+
+    if (navRight) {
+        navRight.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (currentTab < tabCards.length - 1) {
+                currentTab++;
+                updateTabs();
+            }
+        });
+    }
+
+    // Touch Swipe gestures for Mobile Devices
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const sliderContainer = document.getElementById('cards-slider');
+
+    if (sliderContainer) {
+        sliderContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        sliderContainer.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+    }
+
+    function handleSwipe() {
+        const swipeThreshold = 55; // minimum swipe distance in pixels
+        if (touchEndX < touchStartX - swipeThreshold) {
+            // Swipe Left -> Next Tab
+            if (currentTab < tabCards.length - 1) {
+                currentTab++;
+                updateTabs();
+            }
+        } else if (touchEndX > touchStartX + swipeThreshold) {
+            // Swipe Right -> Previous Tab
+            if (currentTab > 0) {
+                currentTab--;
+                updateTabs();
+            }
+        }
+    }
+
+    // Keyboard navigation (optional, but premium experience)
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+            if (currentTab > 0) {
+                currentTab--;
+                updateTabs();
+            }
+        } else if (e.key === 'ArrowRight') {
+            if (currentTab < tabCards.length - 1) {
+                currentTab++;
+                updateTabs();
+            }
+        }
+    });
+
+    // Initialize state
+    updateTabs();
 });
