@@ -254,6 +254,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Убедитесь, что файлы лежат в папке u:\web\bio\assets\songs\
     const tracks = [
         {
+            title: "pirupi", 
+            src: "/assets/songs/goreshit - pirupi.mp3",  
+            cover: "https://i1.sndcdn.com/artworks-000474923970-8g1bij-t500x500.jpg", 
+            url: "https://soundcloud.com/goreshit/pirupi"
+        },
+        {
             title: "Spreading excitement all over the world!", 
             src: "/assets/songs/psiangel - Spreading excitement all over the world!.mp3",  
             cover: "https://i1.sndcdn.com/artworks-q93aKZfQTktFzHAZ-IMRcBw-t500x500.jpg", 
