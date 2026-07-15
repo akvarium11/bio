@@ -11,28 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ==========================================
-    // 1.1 НАСТРОЙКИ ПРОЕКТОВ (ДЛЯ ВТОРОЙ ВКЛАДКИ)
+    // 1.1 СЕКЦИЯ КОММЕНТАРИЕВ
     // ==========================================
-    const projectsConfig = [
-        {
-            title: "AkvariumMacros",
-            description: "Macro pack with cool looking GUI for Minecraft written in C++.",
-            image: "https://camo.githubusercontent.com/1b8ca0d9563e4a1fc9fdf2622e49a62fcd5b818c3d841a77f21b282729eeac5e/68747470733a2f2f66696c65732e636174626f782e6d6f652f7a73333877612e6a7067", // Ссылка на обложку или картинку проекта
-            link: "https://github.com/akvarium11/AkvariumMacros" // Ссылка на проект (GitHub, сайт и т.д.)
-        },
-        {
-            title: "Bio",
-            description: "Minimalist aesthetic personal landing page with dynamic iOS-style audio player.",
-            image: "assets/projects/bio_screenshot.jpg",
-            link: "https://github.com/akvarium11/bio"
-        },
-        {
-            title: "Account-manager",
-            description: "Simple roblox account manager website written in Node.js & suitable for self-hosting.",
-            image: "assets/projects/account_manager.jpg",
-            link: "https://github.com/akvarium11/account-manager"
-        }
-    ];
+    let currentCommentsPage = 1;
+    const commentsLimit = 5;
 
     // Применение настроек профиля
     document.getElementById('profile-username').innerHTML = profileConfig.username;
@@ -62,41 +44,198 @@ document.addEventListener('DOMContentLoaded', () => {
         earsEl.style.display = 'none';
     }
 
-    // Рендеринг проектов во вторую вкладку
-    const projectsListContainer = document.getElementById('projects-list');
-    if (projectsListContainer && typeof projectsConfig !== 'undefined') {
-        projectsConfig.forEach(project => {
-            const a = document.createElement('a');
-            a.className = 'project-item';
-            a.href = project.link || '#';
-            if (project.link && project.link !== '#') {
-                a.target = '_blank';
-            }
+    const commentsListContainer = document.getElementById('comments-list');
+    const commentsPaginationContainer = document.getElementById('comments-pagination');
+    const commentForm = document.getElementById('comment-form');
+    const commentMessage = document.getElementById('comment-message');
 
-            const img = document.createElement('img');
-            img.className = 'project-image';
-            img.src = project.image || 'assets/cover.jpg';
-            img.alt = project.title;
+    // Helper to format date nicely
+    function formatDate(timestamp) {
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMins / 60);
 
-            const content = document.createElement('div');
-            content.className = 'project-content';
+        if (diffMins < 1) return 'только что';
+        if (diffMins < 60) return `${diffMins} мин. назад`;
+        if (diffHours < 24) return `${diffHours} ч. назад`;
 
-            const title = document.createElement('div');
-            title.className = 'project-title';
-            title.innerHTML = `${project.title} <i class="fa-solid fa-arrow-up-right-from-square"></i>`;
-
-            const desc = document.createElement('p');
-            desc.className = 'project-description';
-            desc.textContent = project.description;
-
-            content.appendChild(title);
-            content.appendChild(desc);
-            a.appendChild(img);
-            a.appendChild(content);
-
-            projectsListContainer.appendChild(a);
+        return date.toLocaleString('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
         });
     }
+
+    // Load comments function
+    async function loadComments(page = 1) {
+        if (!commentsListContainer) return;
+
+        try {
+            const response = await fetch(`/api/comments?page=${page}&limit=${commentsLimit}`);
+            if (!response.ok) throw new Error('Ошибка сети при загрузке комментариев');
+
+            const data = await response.json();
+
+            // Render comments
+            commentsListContainer.innerHTML = '';
+
+            if (data.comments.length === 0) {
+                commentsListContainer.innerHTML = `<div style="text-align: center; color: rgba(255,255,255,0.3); font-size: 0.85rem; padding: 20px;">Пока нет комментариев. Будьте первыми!</div>`;
+            } else {
+                data.comments.forEach(comment => {
+                    const item = document.createElement('div');
+                    item.className = 'comment-item';
+
+                    const header = document.createElement('div');
+                    header.className = 'comment-header';
+
+                    const author = document.createElement('span');
+                    author.className = 'comment-author';
+                    author.textContent = comment.name;
+
+                    const date = document.createElement('span');
+                    date.className = 'comment-date';
+                    date.textContent = formatDate(comment.timestamp);
+
+                    header.appendChild(author);
+                    header.appendChild(date);
+
+                    const text = document.createElement('div');
+                    text.className = 'comment-text';
+                    text.textContent = comment.text;
+
+                    item.appendChild(header);
+                    item.appendChild(text);
+                    commentsListContainer.appendChild(item);
+                });
+            }
+
+            // Update page state and render pagination
+            currentCommentsPage = data.currentPage;
+            renderPagination(data.currentPage, data.totalPages);
+
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+            commentsListContainer.innerHTML = `<div style="text-align: center; color: #ff4757; font-size: 0.85rem; padding: 20px;">Не удалось загрузить комментарии.</div>`;
+        }
+    }
+
+    // Render pagination: < page_num >
+    function renderPagination(currentPage, totalPages) {
+        if (!commentsPaginationContainer) return;
+        commentsPaginationContainer.innerHTML = '';
+
+        // If only 1 page, we can hide pagination or show it disabled.
+        // Let's always show it for consistency and style, but disable arrows.
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'page-nav-btn';
+        prevBtn.innerHTML = '&lt;';
+        prevBtn.disabled = currentPage <= 1;
+        prevBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (currentPage > 1) {
+                loadComments(currentPage - 1);
+            }
+        });
+
+        const pageSpan = document.createElement('span');
+        pageSpan.className = 'current-page-num';
+        pageSpan.textContent = currentPage;
+
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'page-nav-btn';
+        nextBtn.innerHTML = '&gt;';
+        nextBtn.disabled = currentPage >= totalPages;
+        nextBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (currentPage < totalPages) {
+                loadComments(currentPage + 1);
+            }
+        });
+
+        commentsPaginationContainer.appendChild(prevBtn);
+        commentsPaginationContainer.appendChild(pageSpan);
+        commentsPaginationContainer.appendChild(nextBtn);
+    }
+
+    // Submit new comment form listener
+    if (commentForm) {
+        commentForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nameInput = document.getElementById('comment-name');
+            const textInput = document.getElementById('comment-text');
+            const submitBtn = document.getElementById('comment-submit-btn');
+
+            if (!nameInput || !textInput || !submitBtn) return;
+
+            const name = nameInput.value.trim();
+            const text = textInput.value.trim();
+
+            if (!name || !text) return;
+
+            // Disable submit button
+            submitBtn.disabled = true;
+            const originalBtnText = submitBtn.textContent;
+            submitBtn.textContent = 'Отправка...';
+
+            try {
+                const response = await fetch('/api/comments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, text })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Произошла ошибка при отправке');
+                }
+
+                // Show success message
+                showMessage(data.message || 'Комментарий добавлен!', 'success');
+
+                // Clear textarea, keep name for convenience
+                textInput.value = '';
+
+                // Reload first page to show latest comments
+                await loadComments(1);
+
+            } catch (error) {
+                console.error('Error posting comment:', error);
+                showMessage(error.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
+            }
+        });
+    }
+
+    // Message notification helper
+    let messageTimeout;
+    function showMessage(msg, type) {
+        if (!commentMessage) return;
+
+        clearTimeout(messageTimeout);
+        commentMessage.textContent = msg;
+        commentMessage.className = `comment-message ${type}`;
+        commentMessage.classList.remove('hidden');
+
+        messageTimeout = setTimeout(() => {
+            commentMessage.classList.add('hidden');
+        }, 5000);
+    }
+
+    // Initial comments fetch
+    loadComments(1);
 
     // ==========================================
     // 2. Анимация Снежинок
@@ -254,6 +393,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Убедитесь, что файлы лежат в папке u:\web\bio\assets\songs\
     const tracks = [
         {
+            title: "Toromi hearts 2", 
+            src: "/assets/songs/goreshit - toromi hearts 2.mp3",  
+            cover: "assets/cover.jpg", 
+            url: "https://soundcloud.com/goreshit/toromi-hearts-2"
+        },
+        {
             title: "pirupi", 
             src: "/assets/songs/goreshit - pirupi.mp3",  
             cover: "https://i1.sndcdn.com/artworks-000474923970-8g1bij-t500x500.jpg", 
@@ -264,12 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
             src: "/assets/songs/psiangel - Spreading excitement all over the world!.mp3",  
             cover: "https://i1.sndcdn.com/artworks-q93aKZfQTktFzHAZ-IMRcBw-t500x500.jpg", 
             url: "https://soundcloud.com/psiangel/god-knows"
-        },
-        {
-            title: "Toromi hearts 2", 
-            src: "/assets/songs/goreshit - toromi hearts 2.mp3",  
-            cover: "assets/cover.jpg", 
-            url: "https://soundcloud.com/goreshit/toromi-hearts-2"
         },
         {
             title: "Illusionary Night [Fuwa Fuwa Spring Storm]", // То, что будет написано в плеере
@@ -718,14 +857,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tracks.forEach(t => {
         if (t.cover) assetsToLoad.push(t.cover);
     });
-    // Preload project images
-    if (typeof projectsConfig !== 'undefined') {
-        projectsConfig.forEach(p => {
-            if (p.image && p.image !== '#' && !p.image.startsWith('http')) {
-                assetsToLoad.push(p.image);
-            }
-        });
-    }
+    // Project images preloading removed (projects replaced with comments)
     // Добавим белый блеск с заднего фона
     assetsToLoad.push('assets/white.gif');
 
@@ -811,7 +943,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 9. TAB SWITCHING (BIO & PROJECTS CARDS)
+    // 9. TAB SWITCHING (BIO & COMMENTS CARDS)
     // ==========================================
     let currentTab = 0;
     const tabCards = document.querySelectorAll('.tab-card');
@@ -833,7 +965,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Update arrows visibility based on the current tab
-        if (currentTab === 0) {
+        if (tabCards.length <= 1) {
+            if (navLeft) navLeft.classList.add('hidden');
+            if (navRight) navRight.classList.add('hidden');
+        } else if (currentTab === 0) {
             if (navLeft) navLeft.classList.add('hidden');
             if (navRight) navRight.classList.remove('hidden');
         } else if (currentTab === tabCards.length - 1) {

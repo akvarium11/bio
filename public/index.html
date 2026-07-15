@@ -124,14 +124,35 @@
                 </div>
             </div>
 
-            <!-- TAB 2: PROJECTS CARD -->
-            <div class="bio-card tab-card slide-next" id="projects-card">
-                <div class="card-shine" id="card-shine-projects"></div>
-                <div class="projects-section">
-                    <h2 class="section-title">Projects</h2>
-                    <div class="projects-list" id="projects-list">
-                        <!-- Projects will be generated dynamically by script.js -->
+            <!-- TAB 2: COMMENTS CARD (скрыта по запросу, для отображения добавьте обратно класс 'tab-card' и уберите style="display: none;") -->
+            <div class="bio-card slide-next" id="comments-card" style="display: none;">
+                <div class="card-shine" id="card-shine-comments"></div>
+                <div class="comments-section">
+                    <h2 class="section-title">Comments</h2>
+                    <div class="comments-list" id="comments-list">
+                        <!-- Comments will be generated dynamically by script.js -->
                     </div>
+                    
+                    <div class="comments-pagination-container">
+                        <div class="comments-pagination" id="comments-pagination">
+                            <!-- Pagination will be dynamically populated here -->
+                        </div>
+                    </div>
+
+                    <div class="comment-separator"></div>
+
+                    <form id="comment-form" class="comment-form">
+                        <div class="form-row">
+                            <input type="text" id="comment-name" placeholder="Ваше имя" required maxlength="30">
+                        </div>
+                        <div class="form-row">
+                            <textarea id="comment-text" placeholder="Ваш комментарий..." required maxlength="400" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="comment-submit-btn" id="comment-submit-btn">
+                            Отправить
+                        </button>
+                    </form>
+                    <div id="comment-message" class="comment-message hidden"></div>
                 </div>
             </div>
         </div>
