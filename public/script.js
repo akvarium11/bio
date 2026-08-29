@@ -6,15 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
         username: "akvarium",
         bio: "<b>shitty C++ dev</b>",
         location: "Russia, Gore",
-        avatar: "/assets/avatars/avatar.webp", // Путь к вашей аватарке (закиньте файл в assets/avatars/)
-        avatarEars: "/assets/decorations/cat-ears.gif" // Путь к украшению (закиньте файл в assets/decorations/). Оставьте "", если не нужно
+        avatar: "assets/avatars/avatar.webp", // Путь к вашей аватарке (закиньте файл в assets/avatars/)
+        avatarEars: "assets/decorations/cat-ears.gif" // Путь к украшению (закиньте файл в assets/decorations/). Оставьте "", если не нужно
     };
-
-    // ==========================================
-    // 1.1 СЕКЦИЯ КОММЕНТАРИЕВ
-    // ==========================================
-    let currentCommentsPage = 1;
-    const commentsLimit = 5;
 
     // Применение настроек профиля
     document.getElementById('profile-username').innerHTML = profileConfig.username;
@@ -44,198 +38,66 @@ document.addEventListener('DOMContentLoaded', () => {
         earsEl.style.display = 'none';
     }
 
-    const commentsListContainer = document.getElementById('comments-list');
-    const commentsPaginationContainer = document.getElementById('comments-pagination');
-    const commentForm = document.getElementById('comment-form');
-    const commentMessage = document.getElementById('comment-message');
-
-    // Helper to format date nicely
-    function formatDate(timestamp) {
-        const date = new Date(timestamp);
-        const now = new Date();
-        const diffMs = now - date;
-        const diffMins = Math.floor(diffMs / 60000);
-        const diffHours = Math.floor(diffMins / 60);
-
-        if (diffMins < 1) return 'только что';
-        if (diffMins < 60) return `${diffMins} мин. назад`;
-        if (diffHours < 24) return `${diffHours} ч. назад`;
-
-        return date.toLocaleString('ru-RU', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    }
-
-    // Load comments function
-    async function loadComments(page = 1) {
-        if (!commentsListContainer) return;
-
-        try {
-            const response = await fetch(`/api/comments?page=${page}&limit=${commentsLimit}`);
-            if (!response.ok) throw new Error('Ошибка сети при загрузке комментариев');
-
-            const data = await response.json();
-
-            // Render comments
-            commentsListContainer.innerHTML = '';
-
-            if (data.comments.length === 0) {
-                commentsListContainer.innerHTML = `<div style="text-align: center; color: rgba(255,255,255,0.3); font-size: 0.85rem; padding: 20px;">Пока нет комментариев. Будьте первыми!</div>`;
-            } else {
-                data.comments.forEach(comment => {
-                    const item = document.createElement('div');
-                    item.className = 'comment-item';
-
-                    const header = document.createElement('div');
-                    header.className = 'comment-header';
-
-                    const author = document.createElement('span');
-                    author.className = 'comment-author';
-                    author.textContent = comment.name;
-
-                    const date = document.createElement('span');
-                    date.className = 'comment-date';
-                    date.textContent = formatDate(comment.timestamp);
-
-                    header.appendChild(author);
-                    header.appendChild(date);
-
-                    const text = document.createElement('div');
-                    text.className = 'comment-text';
-                    text.textContent = comment.text;
-
-                    item.appendChild(header);
-                    item.appendChild(text);
-                    commentsListContainer.appendChild(item);
-                });
-            }
-
-            // Update page state and render pagination
-            currentCommentsPage = data.currentPage;
-            renderPagination(data.currentPage, data.totalPages);
-
-        } catch (error) {
-            console.error('Error fetching comments:', error);
-            commentsListContainer.innerHTML = `<div style="text-align: center; color: #ff4757; font-size: 0.85rem; padding: 20px;">Не удалось загрузить комментарии.</div>`;
+    // ==========================================
+    // 1.1 НАСТРОЙКИ ПРОЕКТОВ (ДЛЯ ВТОРОЙ ВКЛАДКИ)
+    // ==========================================
+    const projectsConfig = [
+        {
+            title: "Ambient.lua",
+            description: "Private script for Violence District with beautiful visuals and newest bypasses.",
+            image: "assets/projects/ambient.png",
+            link: "https://ambient.lat/"
+        },
+        {
+            title: "AkvariumMacros",
+            description: "Macro pack with cool looking GUI for Minecraft written in C++.",
+            image: "assets/projects/akvarium_macros.jpg",
+            link: "https://github.com/akvarium11/AkvariumMacros"
+        },
+        {
+            title: "MoonPlayer",
+            description: "Lightweight desktop & web music player with dynamic island, EQ and Discord RPC.",
+            image: "assets/projects/moonplayer.png",
+            link: "https://github.com/akvarium11/MoonPlayer"
         }
-    }
+    ];
 
-    // Render pagination: < page_num >
-    function renderPagination(currentPage, totalPages) {
-        if (!commentsPaginationContainer) return;
-        commentsPaginationContainer.innerHTML = '';
-
-        // If only 1 page, we can hide pagination or show it disabled.
-        // Let's always show it for consistency and style, but disable arrows.
-        const prevBtn = document.createElement('button');
-        prevBtn.className = 'page-nav-btn';
-        prevBtn.innerHTML = '&lt;';
-        prevBtn.disabled = currentPage <= 1;
-        prevBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (currentPage > 1) {
-                loadComments(currentPage - 1);
+    // Рендеринг проектов во вторую вкладку
+    const projectsListContainer = document.getElementById('projects-list');
+    if (projectsListContainer && typeof projectsConfig !== 'undefined') {
+        projectsConfig.forEach(project => {
+            const a = document.createElement('a');
+            a.className = 'project-item';
+            a.href = project.link || '#';
+            if (project.link && project.link !== '#') {
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
             }
-        });
 
-        const pageSpan = document.createElement('span');
-        pageSpan.className = 'current-page-num';
-        pageSpan.textContent = currentPage;
+            const img = document.createElement('img');
+            img.className = 'project-image';
+            img.src = project.image || 'assets/cover.jpg';
+            img.alt = project.title;
 
-        const nextBtn = document.createElement('button');
-        nextBtn.className = 'page-nav-btn';
-        nextBtn.innerHTML = '&gt;';
-        nextBtn.disabled = currentPage >= totalPages;
-        nextBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (currentPage < totalPages) {
-                loadComments(currentPage + 1);
-            }
-        });
+            const content = document.createElement('div');
+            content.className = 'project-content';
 
-        commentsPaginationContainer.appendChild(prevBtn);
-        commentsPaginationContainer.appendChild(pageSpan);
-        commentsPaginationContainer.appendChild(nextBtn);
-    }
+            const title = document.createElement('div');
+            title.className = 'project-title';
+            title.innerHTML = `${project.title} <i class="fa-solid fa-arrow-up-right-from-square"></i>`;
 
-    // Submit new comment form listener
-    if (commentForm) {
-        commentForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+            const desc = document.createElement('p');
+            desc.className = 'project-description';
+            desc.textContent = project.description;
 
-            const nameInput = document.getElementById('comment-name');
-            const textInput = document.getElementById('comment-text');
-            const submitBtn = document.getElementById('comment-submit-btn');
+            content.appendChild(title);
+            content.appendChild(desc);
+            a.appendChild(img);
+            a.appendChild(content);
 
-            if (!nameInput || !textInput || !submitBtn) return;
-
-            const name = nameInput.value.trim();
-            const text = textInput.value.trim();
-
-            if (!name || !text) return;
-
-            // Disable submit button
-            submitBtn.disabled = true;
-            const originalBtnText = submitBtn.textContent;
-            submitBtn.textContent = 'Отправка...';
-
-            try {
-                const response = await fetch('/api/comments', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ name, text })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || 'Произошла ошибка при отправке');
-                }
-
-                // Show success message
-                showMessage(data.message || 'Комментарий добавлен!', 'success');
-
-                // Clear textarea, keep name for convenience
-                textInput.value = '';
-
-                // Reload first page to show latest comments
-                await loadComments(1);
-
-            } catch (error) {
-                console.error('Error posting comment:', error);
-                showMessage(error.message, 'error');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalBtnText;
-            }
+            projectsListContainer.appendChild(a);
         });
     }
-
-    // Message notification helper
-    let messageTimeout;
-    function showMessage(msg, type) {
-        if (!commentMessage) return;
-
-        clearTimeout(messageTimeout);
-        commentMessage.textContent = msg;
-        commentMessage.className = `comment-message ${type}`;
-        commentMessage.classList.remove('hidden');
-
-        messageTimeout = setTimeout(() => {
-            commentMessage.classList.add('hidden');
-        }, 5000);
-    }
-
-    // Initial comments fetch
-    loadComments(1);
 
     // ==========================================
     // 2. Анимация Снежинок
@@ -857,7 +719,14 @@ document.addEventListener('DOMContentLoaded', () => {
     tracks.forEach(t => {
         if (t.cover) assetsToLoad.push(t.cover);
     });
-    // Project images preloading removed (projects replaced with comments)
+    // Preload project images
+    if (typeof projectsConfig !== 'undefined') {
+        projectsConfig.forEach(p => {
+            if (p.image && p.image !== '#' && !p.image.startsWith('http')) {
+                assetsToLoad.push(p.image);
+            }
+        });
+    }
     // Добавим белый блеск с заднего фона
     assetsToLoad.push('assets/white.gif');
 
@@ -943,7 +812,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 9. TAB SWITCHING (BIO & COMMENTS CARDS)
+    // 9. TAB SWITCHING (BIO & PROJECTS CARDS)
     // ==========================================
     let currentTab = 0;
     const tabCards = document.querySelectorAll('.tab-card');
